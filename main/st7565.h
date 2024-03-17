@@ -17,9 +17,15 @@ typedef struct {
     uint16_t _width;
     uint16_t _height;
     uint16_t _RS;
+    uint16_t _numOfBytes;
     spi_device_handle_t _SPIHandle;
+    uint8_t *_buffer;
+
 } display_t;
 
 void init_display(display_t *dev, int width, int height);
+void lcd_draw_pixel(display_t *dev, uint16_t x, uint16_t y, uint8_t color);
+void lcd_write_buffer(display_t *dev);
+void lcd_fill_buffer(display_t *dev);
 
 #endif

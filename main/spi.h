@@ -21,10 +21,10 @@
 #define SPI_FREQUENCY SPI_MASTER_FREQ_8M
 
 void init_spi(display_t *dev);
-void spi_write_byte(spi_device_handle_t SPIHandle, const uint8_t data, size_t dataLength);
+void spi_write_byte(spi_device_handle_t SPIHandle, const uint8_t *data, size_t dataLength);
 void spi_write_command(display_t *dev, uint8_t cmd);
-void spi_write_data(display_t *dev, uint8_t *data, int16_t len);
-void spi_write_data_byte(display_t *dev, uint8_t *data);
+void spi_write_data(display_t *dev, uint8_t data, int16_t len);
+void spi_write_data_byte(display_t *dev, uint8_t data);
 void delayMS(int ms);
 
 

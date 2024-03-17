@@ -32,6 +32,9 @@ void init_display(display_t *dev, int width, int height) {
     dev->_width = width;
     dev->_height = height;
     dev->_RS = GPIO_RS;
+	dev->_numOfBytes = width*(height/8);
+	uint8_t *buffer = (uint8_t*)malloc(dev->_numOfBytes);
+	dev->_buffer = buffer;
 
     spi_write_command(dev, 0xe2); // system reset
 	spi_write_command(dev, 0x40); // set LCD start line to 0
@@ -45,7 +48,7 @@ void init_display(display_t *dev, int width, int height) {
 	spi_write_command(dev, 0x00); // 4x
 	spi_write_command(dev, 0x23); // set resistor ratio = 4
 	spi_write_command(dev, 0x81);
-	spi_write_command(dev, 0x28); // set contrast = 40
+	spi_write_command(dev, 0x3F); // set contrast = 40
 	spi_write_command(dev, 0xac); // set static indicator off
 	spi_write_command(dev, 0x00);
 	spi_write_command(dev, 0xa6); // disable inverse
@@ -53,7 +56,44 @@ void init_display(display_t *dev, int width, int height) {
 	delayMS(100);
 	spi_write_command(dev, 0xa5); // display all points
 	delayMS(200);
-	spi_write_command(dev, 0xa4); // normal display
+	spi_write_command(dev, 0xa4); // normal displayW
+
+	// spi_write_data(dev, 0x0C, 1);
+	// spi_write_data(dev, 0x01, 1);
+	// spi_write_data(dev, 0x09, 1);
+	// spi_write_data(dev, 0x00, 1);
+	// spi_write_data(dev, 0x01, 1);
+	// spi_write_data(dev, 0x01, 1);
+	// spi_write_data(dev, 0x0A, 1);
+	// spi_write_data(dev, 0x0A, 1);
+	// spi_write_data(dev, 0x0C, 1);
+	// spi_write_data(dev, 0x01, 1);
+	// spi_write_data(dev, 0b00000000, 1);
+	// spi_write_data(dev, 0b01101101, 1);
 
 }
 
+void lcd_draw_pixel(display_t *dev, uint16_t x, uint16_t y, uint8_t color) {
+	if(color>0){
+		dev->_buffer[x + (y/8)*dev->_width] |= 1;
+	} else{
+		dev->_buffer[x + (y/8)*dev->_width] &= 0;
+	}
+}
+
+void lcd_write_buffer(display_t *dev) {
+	uint16_t x, y;
+	for(y=0; y<8; y++) {
+		spi_write_command(dev, 0xb0 | y);
+		spi_write_command(dev, 0x10);
+		for(x=0; x<dev->_width; x++) {
+			spi_write_data_byte(dev, dev->_buffer[x+y*128]);
+		}
+	}
+}
+
+void lcd_fill_buffer(display_t *dev) {
+	for(int x=0; x<dev->_numOfBytes; x++) {
+		dev->_buffer[x] = 0xff;
+	}
+}

@@ -15,23 +15,23 @@ void init_spi(display_t *dev) {
         .quadhd_io_num = GPIO_QUADHD
     };
 
-    spi_bus_initialize(LCD_HOST, &spi_cfg, SPI_DMA_CH_AUTO);
+    spi_bus_initialize(LCD_HOST, &spi_cfg, 0);
 
     spi_device_interface_config_t devcfg = {
-        .clock_speed_hz = 500,
+        .clock_speed_hz = SPI_MASTER_FREQ_8M,
         .queue_size = 7,
         .mode = 0,
         .flags = SPI_DEVICE_NO_DUMMY,
         .spics_io_num = GPIO_CS_LCD
     };
     spi_device_handle_t handle;
-    spi_bus_add_device(SPI1_HOST, &devcfg, &handle);
+    spi_bus_add_device(LCD_HOST, &devcfg, &handle);
 
     dev->_SPIHandle = handle;
 
 }
 
-void spi_write_byte(spi_device_handle_t SPIHandle, const uint8_t data, size_t dataLength) {
+void spi_write_byte(spi_device_handle_t SPIHandle, const uint8_t *data, size_t dataLength) {
     spi_transaction_t SPITransaction;
 
     if(dataLength > 0) {
@@ -51,16 +51,16 @@ void spi_write_command(display_t *dev, uint8_t cmd) {
     spi_write_byte(dev->_SPIHandle, &Byte, 1);
 }
 
-void spi_write_data(display_t *dev, uint8_t *data, int16_t len) {
+void spi_write_data(display_t *dev, uint8_t data, int16_t len) {
     gpio_set_level(dev->_RS, SPI_Data_Mode);
     spi_write_byte(dev->_SPIHandle, &data, len);
 }
 
-void spi_write_data_byte(display_t *dev, uint8_t *data) {
+void spi_write_data_byte(display_t *dev, uint8_t data) {
     static uint8_t Byte = 0;
     Byte = data;
     gpio_set_level(dev->_RS, SPI_Data_Mode);
-    spi_write_byte(dev->_SPIHandle, &data, 1);
+    spi_write_byte(dev->_SPIHandle, &Byte, 1);
 }
 
 void delayMS(int ms) {
