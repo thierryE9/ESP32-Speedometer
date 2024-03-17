@@ -1,5 +1,11 @@
 #include "spi.h"
 
+#ifdef CONFIG_IDF_TARGET_ESP32
+#define LCD_HOST    HSPI_HOST
+#else
+#define LCD_HOST    SPI2_HOST
+#endif
+
 void init_spi(display_t *dev) {
     spi_bus_config_t spi_cfg = {
         .mosi_io_num = GPIO_MOSI,
@@ -9,10 +15,10 @@ void init_spi(display_t *dev) {
         .quadhd_io_num = GPIO_QUADHD
     };
 
-    spi_bus_initialize(SPI1_HOST, &spi_cfg, SPI_DMA_CH_AUTO);
+    spi_bus_initialize(LCD_HOST, &spi_cfg, SPI_DMA_CH_AUTO);
 
     spi_device_interface_config_t devcfg = {
-        .clock_speed_hz = SPI_FREQUENCY,
+        .clock_speed_hz = 500,
         .queue_size = 7,
         .mode = 0,
         .flags = SPI_DEVICE_NO_DUMMY,

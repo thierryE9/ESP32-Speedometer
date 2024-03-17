@@ -11,9 +11,23 @@
 
 void init_display(display_t *dev, int width, int height) {
     init_spi(dev);
-    gpio_set_direction(GPIO_RESET, GPIO_MODE_OUTPUT);
-    gpio_set_direction(dev->_RS, GPIO_MODE_OUTPUT);
-    gpio_set_direction( GPIO_CS_LCD, GPIO_MODE_OUTPUT);
+    
+	gpio_reset_pin( GPIO_RESET );
+	gpio_set_direction( GPIO_RESET, GPIO_MODE_OUTPUT );
+	gpio_set_level( GPIO_RESET, 1 );
+	delayMS(50);
+	gpio_set_level( GPIO_RESET, 0 );
+	delayMS(50);
+	gpio_set_level( GPIO_RESET, 1 );
+	delayMS(50);
+
+    gpio_reset_pin( GPIO_RS );
+	gpio_set_direction( GPIO_RS, GPIO_MODE_OUTPUT );
+	gpio_set_level( GPIO_RS, 0 );
+	
+	gpio_reset_pin( GPIO_CS_LCD );
+	gpio_set_direction( GPIO_CS_LCD, GPIO_MODE_OUTPUT );
+	gpio_set_level( GPIO_CS_LCD, 0 );
 
     dev->_width = width;
     dev->_height = height;
