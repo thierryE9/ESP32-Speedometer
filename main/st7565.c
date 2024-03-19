@@ -84,8 +84,8 @@ void lcd_draw_pixel(display_t *dev, uint16_t x, uint16_t y, uint8_t color) {
 void lcd_write_buffer(display_t *dev) {
 	uint16_t x, y;
 	for(y=0; y<8; y++) {
-		spi_write_command(dev, 0xb0 | y);
-		spi_write_command(dev, 0x10);
+		spi_write_command(dev, 0xb0 | y);	// set page address
+		spi_write_command(dev, 0x10);	// set column address
 		for(x=0; x<dev->_width; x++) {
 			spi_write_data_byte(dev, dev->_buffer[x+y*128]);
 		}
