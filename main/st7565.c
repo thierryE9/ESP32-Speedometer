@@ -34,8 +34,9 @@ void init_display(display_t *dev, int width, int height) {
     dev->_RS = GPIO_RS;
 	dev->_numOfBytes = width*(height/8);
 	uint8_t *buffer = (uint8_t*)malloc(dev->_numOfBytes);
+	memset(buffer, 0, dev->_numOfBytes);
 	dev->_buffer = buffer;
-
+	dev->_cursor = 0;
     spi_write_command(dev, 0xe2); // system reset
 	spi_write_command(dev, 0x40); // set LCD start line to 0
 	spi_write_command(dev, 0xa0); // set SEG direction (A1 to flip horizontal)
@@ -48,7 +49,7 @@ void init_display(display_t *dev, int width, int height) {
 	spi_write_command(dev, 0x00); // 4x
 	spi_write_command(dev, 0x23); // set resistor ratio = 4
 	spi_write_command(dev, 0x81);
-	spi_write_command(dev, 0x3F); // set contrast = 40
+	spi_write_command(dev, 0x3A); // set contrast = 40
 	spi_write_command(dev, 0xac); // set static indicator off
 	spi_write_command(dev, 0x00);
 	spi_write_command(dev, 0xa6); // disable inverse
@@ -56,7 +57,9 @@ void init_display(display_t *dev, int width, int height) {
 	delayMS(100);
 	spi_write_command(dev, 0xa5); // display all points
 	delayMS(200);
-	spi_write_command(dev, 0xa4); // normal displayW
+	spi_write_command(dev, 0xa4); // normal display
+
+	lcd_write_buffer(dev);
 
 	// spi_write_data(dev, 0x0C, 1);
 	// spi_write_data(dev, 0x01, 1);
@@ -96,4 +99,24 @@ void lcd_fill_buffer(display_t *dev) {
 	for(int x=0; x<dev->_numOfBytes; x++) {
 		dev->_buffer[x] = 0xff;
 	}
+}
+
+void lcd_write_char(display_t *dev, char letter) {
+	for(int column=0; column<8; column++) {
+		dev->_buffer[dev->_cursor] = font8x8[letter*8+column];
+		dev->_cursor++;
+	}
+}
+
+void lcd_write_string(display_t *dev, char *str) {
+	int length = strlen(str);
+	for(int letter=0; letter<length; letter++) {
+		lcd_write_char(dev, str[letter]);
+	}
+}
+
+void lcd_set_cursor(display_t *dev, uint8_t x, uint8_t y) {
+	if(x>=dev->_width || x<0 || y>dev->_height || y<0) // bad coords
+		return; 
+	dev->_cursor = x + y*dev->_width;
 }

@@ -18,7 +18,7 @@ void init_spi(display_t *dev) {
     spi_bus_initialize(LCD_HOST, &spi_cfg, 0);
 
     spi_device_interface_config_t devcfg = {
-        .clock_speed_hz = SPI_MASTER_FREQ_8M,
+        .clock_speed_hz = SPI_MASTER_FREQ_16M,
         .queue_size = 7,
         .mode = 0,
         .flags = SPI_DEVICE_NO_DUMMY,
