@@ -9,8 +9,9 @@
 #include "spi.h"
 
 
-void init_display(display_t *dev, int width, int height) {
-    init_spi(dev);
+void init_display(display_t *dev, int width, int height, uint8_t GPIO_CS, uint8_t GPIO_RESET, uint8_t GPIO_A0) {
+	spi_device_handle_t handle;
+	spi_add(&handle, GPIO_CS);
     
 	gpio_reset_pin( GPIO_RESET );
 	gpio_set_direction( GPIO_RESET, GPIO_MODE_OUTPUT );
@@ -21,17 +22,17 @@ void init_display(display_t *dev, int width, int height) {
 	gpio_set_level( GPIO_RESET, 1 );
 	delayMS(50);
 
-    gpio_reset_pin( GPIO_RS );
-	gpio_set_direction( GPIO_RS, GPIO_MODE_OUTPUT );
-	gpio_set_level( GPIO_RS, 0 );
+    gpio_reset_pin( GPIO_A0 );
+	gpio_set_direction( GPIO_A0, GPIO_MODE_OUTPUT );
+	gpio_set_level( GPIO_A0, 0 );
 	
-	gpio_reset_pin( GPIO_CS_LCD );
-	gpio_set_direction( GPIO_CS_LCD, GPIO_MODE_OUTPUT );
-	gpio_set_level( GPIO_CS_LCD, 0 );
+	gpio_reset_pin( GPIO_CS );
+	gpio_set_direction( GPIO_CS, GPIO_MODE_OUTPUT );
+	gpio_set_level( GPIO_CS, 0 );
 
     dev->_width = width;
     dev->_height = height;
-    dev->_RS = GPIO_RS;
+    dev->_A = GPIO_A0;
 	dev->_numOfBytes = width*(height/8);
 	uint8_t *buffer = (uint8_t*)malloc(dev->_numOfBytes);
 	memset(buffer, 0, dev->_numOfBytes);
@@ -119,4 +120,23 @@ void lcd_set_cursor(display_t *dev, uint8_t x, uint8_t y) {
 	if(x>=dev->_width || x<0 || y>dev->_height || y<0) // bad coords
 		return; 
 	dev->_cursor = x + y*dev->_width;
+}
+
+void spi_write_command(display_t *dev, uint8_t cmd) {
+    static uint8_t Byte = 0;
+    Byte = cmd;
+    gpio_set_level(dev->_A, SPI_Command_Mode);
+    spi_write_byte(dev->_SPIHandle, &Byte, 1);
+}
+
+void spi_write_data(display_t *dev, uint8_t data, int16_t len) {
+    gpio_set_level(dev->_A, SPI_Data_Mode);
+    spi_write_byte(dev->_SPIHandle, &data, len);
+}
+
+void spi_write_data_byte(display_t *dev, uint8_t data) {
+    static uint8_t Byte = 0;
+    Byte = data;
+    gpio_set_level(dev->_A, SPI_Data_Mode);
+    spi_write_byte(dev->_SPIHandle, &Byte, 1);
 }
