@@ -38,6 +38,7 @@ void init_display(display_t *dev, int width, int height, uint8_t GPIO_CS, uint8_
 	memset(buffer, 0, dev->_numOfBytes);
 	dev->_buffer = buffer;
 	dev->_cursor = 0;
+	dev->_SPIHandle = handle;
     spi_write_command(dev, 0xe2); // system reset
 	spi_write_command(dev, 0x40); // set LCD start line to 0
 	spi_write_command(dev, 0xa0); // set SEG direction (A1 to flip horizontal)
