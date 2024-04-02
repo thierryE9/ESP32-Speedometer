@@ -1,6 +1,5 @@
 #include "speed_sensor.h"
 #include "driver/gpio.h"
-#include "esp_timer.h"
 #include "spi.h"
 
 void init_speed_sensor(hall_sensor_t *sensor, uint8_t gpio, int perimiter_mm, int num_of_magnets, int stopped_threshold_us) {
@@ -15,6 +14,7 @@ void init_speed_sensor(hall_sensor_t *sensor, uint8_t gpio, int perimiter_mm, in
 
     sensor->_GPIO_NUM = gpio;
     sensor->_last_trigger_tick = 0;
+    sensor->_current_trigger_tick = 3000000;
     sensor->_speed = 0;
     sensor->_perimiter_mm = perimiter_mm;
     sensor->_num_of_magnets = num_of_magnets;
@@ -23,28 +23,47 @@ void init_speed_sensor(hall_sensor_t *sensor, uint8_t gpio, int perimiter_mm, in
 
     gpio_install_isr_service(1<<9);
     gpio_isr_handler_add(sensor->_GPIO_NUM, speed_isr_handler, (void*)sensor);
+
+    const esp_timer_create_args_t timer_cfg = {
+        .callback = &check_if_moving_timer,
+        .arg = (void*)sensor, // Pass the address of arg1
+        .name = "my_timer"
+    };
+
+    // Create the timer
+    esp_timer_handle_t timer_handle;
+    esp_timer_create(&timer_cfg, &timer_handle);
+    // Start the timer
+    esp_timer_start_periodic(timer_handle, 1000);
+    sensor->_timer_handle = timer_handle;
 }
 
 void IRAM_ATTR speed_isr_handler(void *arg) {
     hall_sensor_t *sensor = (hall_sensor_t*)arg;
-    int64_t current_tick = esp_timer_get_time();
-    int64_t time = current_tick - sensor->_last_trigger_tick;
-
-    if(sensor->_is_moving) {
-        sensor->_speed = (int)((sensor->_perimiter_mm / sensor->_num_of_magnets) / time*1000); // in mm/ms same as m/s
-    }
-    sensor->_last_trigger_tick = current_tick;
-    sensor->_is_moving = 1;
-    
+    sensor->_current_trigger_tick = esp_timer_get_time();
+    sensor->_has_pulsed = 1;    
 }
 
-void check_if_moving_task(hall_sensor_t *sensor) {
-    while(1) {
-        delayMS(1000);
-        if((esp_timer_get_time() - sensor->_last_trigger_tick) > sensor->_STOPPED_THRESHOLD_uS) {
+void check_if_moving_timer(void *arg) {
+    hall_sensor_t *sensor = (hall_sensor_t*)arg;
+    int64_t current_time = esp_timer_get_time();
+    int64_t elapsed_time = current_time - sensor->_last_trigger_tick;
+    if((elapsed_time > sensor->_STOPPED_THRESHOLD_uS) & !sensor->_has_pulsed) {
         sensor->_speed = 0;
-        sensor->_is_moving = 0;
-        }
+        // sensor->_is_moving = 0;
+        return;
+    } else if((elapsed_time > sensor->_STOPPED_THRESHOLD_uS) & sensor->_has_pulsed) {
+        sensor->_speed = 0;
+        // sensor->_is_moving = 0;
+        sensor->_has_pulsed = 0;
+        sensor->_last_trigger_tick = sensor->_current_trigger_tick;
     }
+    if(sensor->_has_pulsed) {
+        sensor->_speed = (float)((sensor->_perimiter_mm/sensor->_num_of_magnets))/((float)(sensor->_current_trigger_tick - sensor->_last_trigger_tick))*1000;
+        sensor->_last_trigger_tick = sensor->_current_trigger_tick;
+        sensor->_has_pulsed = 0;
+    }
+
     
 }
+

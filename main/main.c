@@ -28,8 +28,6 @@ void app_main(void)
     hall_sensor_t sensor;
     init_speed_sensor(&sensor, 33, 2100, 1, 2000000);
     // xTaskCreate(start, "start", 1024*6, &dev, 2, NULL);
-    
-    xTaskCreate(check_if_moving_task, "moving_task", 1024*6, &sensor, 2, NULL);
     init_display(&dev, 128, 64, 25, 26, 27);
     delayMS(1000);
     lcd_set_cursor(&dev, 58, 3);
@@ -37,7 +35,7 @@ void app_main(void)
     lcd_write_buffer(&dev);
 
     while(1) {
-        printf("speed: %d\n", sensor._speed);
+        printf("speed: %f\n", sensor._speed);
         delayMS(500);
     }
 }
