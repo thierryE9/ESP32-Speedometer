@@ -15,13 +15,13 @@ void init_speed_sensor(hall_sensor_t *sensor, uint8_t gpio, int perimiter_mm, in
     sensor->_GPIO_NUM = gpio;
     sensor->_last_trigger_tick = 0;
     sensor->_current_trigger_tick = 3000000;
-    sensor->_speed = 0;
+    sensor->_speed = 0.0;
     sensor->_perimiter_mm = perimiter_mm;
     sensor->_num_of_magnets = num_of_magnets;
     sensor->_is_moving = 0;
     sensor->_STOPPED_THRESHOLD_uS = stopped_threshold_us;
+    sensor->_unit = 0;
 
-    gpio_install_isr_service(1<<9);
     gpio_isr_handler_add(sensor->_GPIO_NUM, speed_isr_handler, (void*)sensor);
 
     const esp_timer_create_args_t timer_cfg = {

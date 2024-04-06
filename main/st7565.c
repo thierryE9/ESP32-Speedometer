@@ -51,7 +51,7 @@ void init_display(display_t *dev, int width, int height, uint8_t GPIO_CS, uint8_
 	spi_write_command(dev, 0x00); // 4x
 	spi_write_command(dev, 0x23); // set resistor ratio = 4
 	spi_write_command(dev, 0x81);
-	spi_write_command(dev, 0x3A); // set contrast = 40
+	spi_write_command(dev, 0xFF); // set contrast = 40
 	spi_write_command(dev, 0xac); // set static indicator off
 	spi_write_command(dev, 0x00);
 	spi_write_command(dev, 0xa6); // disable inverse

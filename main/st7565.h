@@ -19,6 +19,7 @@ typedef struct {
     spi_device_handle_t _SPIHandle;
     uint8_t *_buffer;
     uint16_t _cursor; // keep track of cursor for typing text
+    char *_speed_str;
 } display_t;
 
 void init_display(display_t *dev, int width, int height, uint8_t GPIO_CS, uint8_t GPIO_RESET, uint8_t GPIO_A0);
