@@ -1,35 +1,68 @@
-| Supported Targets | ESP32 | ESP32-C2 | ESP32-C3 | ESP32-C6 | ESP32-H2 | ESP32-S2 | ESP32-S3 |
-| ----------------- | ----- | -------- | -------- | -------- | -------- | -------- | -------- |
+# ESP32 Bicycle Speedometer
 
-# _Sample project_
+This project is an ESP32-based bicycle speedometer that uses a Hall effect sensor and multiple magnets to calculate the speed of tire rotation. The calculated speed is displayed on an ST7565-based LCD screen. The project is implemented using ESP-IDF, and no external libraries were used for the LCD interface, which was written from scratch.
 
-(See the README.md file in the upper level 'examples' directory for more information about examples.)
+## Table of Contents
 
-This is the simplest buildable example. The example is used by command `idf.py create-project`
-that copies the project to user specified path and set it's name. For more information follow the [docs page](https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/build-system.html#start-a-new-project)
+- [Overview](#overview)
+- [Hardware Requirements](#hardware-requirements)
+- [Software Requirements](#software-requirements)
+- [Setup](#setup)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [License](#license)
 
+## Overview
 
+This project measures the speed of a bicycle by detecting the rotation of its tires. A Hall effect sensor detects the passing of magnets mounted on the bicycle wheel, and the ESP32 microcontroller calculates the speed based on the time between detections. The speed is then displayed on an ST7565 LCD screen.
 
-## How to use example
-We encourage the users to use the example as a template for the new projects.
-A recommended way is to follow the instructions on a [docs page](https://docs.espressif.com/projects/esp-idf/en/latest/api-guides/build-system.html#start-a-new-project).
+## Hardware Requirements
 
-## Example folder contents
+- ESP32 development board
+- Hall effect sensor (41F)
+- Magnets (to be mounted on the bicycle wheel)
+- ST7565 LCD screen (GMG12864-06D)
+- MCP1700-3302 voltage regulator
+- Push button to switch between km/h and m/s
 
-The project **sample_project** contains one source file in C language [main.c](main/main.c). The file is located in folder [main](main).
+## Software Requirements
 
-ESP-IDF projects are built using CMake. The project build configuration is contained in `CMakeLists.txt`
-files that provide set of directives and instructions describing the project's source files and targets
-(executable, library, or both). 
+- ESP-IDF (Espressif IoT Development Framework)
 
-Below is short explanation of remaining files in the project folder.
+## Setup
 
+### 1. Install ESP-IDF
+
+Follow the instructions to set up the ESP-IDF environment:
+- [ESP-IDF Getting Started Guide](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/get-started/)
+
+### 2. Clone the Repository
+
+```bash
+git clone https://github.com/thierryE9/st7565test
 ```
-├── CMakeLists.txt
-├── main
-│   ├── CMakeLists.txt
-│   └── main.c
-└── README.md                  This is the file you are currently reading
+
+### 3. Build and Flash
+
+Build the project and flash it to your ESP32:
+
+```bash
+idf.py build
+idf.py flash
 ```
-Additionally, the sample project contains Makefile and component.mk files, used for the legacy Make based build system. 
-They are not used or needed when building with CMake and idf.py.
+
+### 4. Monitor the Output
+
+After flashing, you can monitor the output using:
+
+```bash
+idf.py monitor
+```
+
+## Usage
+
+1. Mount the magnets on the bicycle wheel at equal distances.
+2. Position the Hall effect sensor so that it detects the passing magnets as the wheel rotates.
+3. Power on the ESP32.
+4. The LCD screen will display the current speed based on the tire rotations.
+5. Press the button to switch between km/h and m/s.
