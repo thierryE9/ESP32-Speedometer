@@ -23,6 +23,8 @@ This project measures the speed of a bicycle by detecting the rotation of its ti
 - MCP1700-3302 voltage regulator
 - Push button to switch between km/h and m/s
 
+![Capture](https://github.com/thierryE9/ESP32-Speedometer/assets/46188431/7851cccc-e1de-42b6-8964-2e3c38b04f44)
+
 ## Software Requirements
 
 - ESP-IDF (Espressif IoT Development Framework)
