@@ -48,11 +48,11 @@ void check_if_moving_timer(void *arg) {
     hall_sensor_t *sensor = (hall_sensor_t*)arg;
     int64_t current_time = esp_timer_get_time();
     int64_t elapsed_time = current_time - sensor->_last_trigger_tick;
-    if((elapsed_time > sensor->_STOPPED_THRESHOLD_uS) & !sensor->_has_pulsed) {
+    if((elapsed_time > sensor->_STOPPED_THRESHOLD_uS) && !sensor->_has_pulsed) {
         sensor->_speed = 0;
         // sensor->_is_moving = 0;
         return;
-    } else if((elapsed_time > sensor->_STOPPED_THRESHOLD_uS) & sensor->_has_pulsed) {
+    } else if((elapsed_time > sensor->_STOPPED_THRESHOLD_uS) && sensor->_has_pulsed) {
         sensor->_speed = 0;
         // sensor->_is_moving = 0;
         sensor->_has_pulsed = 0;
