@@ -9,8 +9,6 @@ This project is an ESP32-based bicycle speedometer that uses a Hall effect senso
 - [Software Requirements](#software-requirements)
 - [Setup](#setup)
 - [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## Overview
 
